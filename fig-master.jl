@@ -1,5 +1,13 @@
 using BSON, PyPlot
 
+function roundint(x)
+	if isinteger(x) == true
+		return Int(x)
+	else
+		return x
+	end
+end
+
 τ_s = 5.0
 fig_width = 9 # width of figure
 panel_height = 3 # height of a single panel
