@@ -2,14 +2,16 @@ include("fig-master.jl")
 dir2 = "../spatial-neuron-bifurcations/data"
 
 
-C1_data = BSON.load("$(dir2)/bifs/MLC1_bif_general.bson")
+# C1_data = BSON.load("$(dir2)/bifs/MLC1_bif_general.bson")
+C1_data = BSON.load("data/MLS_bif_general.bson")
+
 gin_C1 = C1_data[:gin]
 Ibt_C1 = C1_data[:Ibt]
 gbt_C1 = C1_data[:gbt]
 Ih_C1 = C1_data[:Ih]
 Sh_C1 = C1_data[:Sh]
 
-DS_data = BSON.load("$(dir2)/bifs/MLDSinf_bif_general.bson")
+DS_data = BSON.load("data/MLDS_bif_general.bson")
 Isn = DS_data[:Isn]
 gin_DS = DS_data[:gin]
 Ic = DS_data[:Ic]
