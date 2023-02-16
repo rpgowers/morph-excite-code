@@ -3,13 +3,13 @@ dir2 = "../spatial-neuron-bifurcations/data"
 
 
 # C1_data = BSON.load("$(dir2)/bifs/MLC1_bif_general.bson")
-C1_data = BSON.load("data/MLS_bif_general.bson")
+S_data = BSON.load("data/MLS_bif_general.bson")
 
-gin_C1 = C1_data[:gin]
-Ibt_C1 = C1_data[:Ibt]
-gbt_C1 = C1_data[:gbt]
-Ih_C1 = C1_data[:Ih]
-Sh_C1 = C1_data[:Sh]
+gin_S = S_data[:gin]
+Ibt_S = S_data[:Ibt]
+gbt_S = S_data[:gbt]
+Ih_S = S_data[:Ih]
+Sh_S = S_data[:Sh]
 
 DS_data = BSON.load("data/MLDS_bif_general.bson")
 Isn = DS_data[:Isn]
@@ -28,15 +28,15 @@ plot(Isn[:,1], gin_DS, color="k", alpha=alpha, label="SN")
 plot(Isn[:,2], gin_DS, color="k", alpha=alpha)
 plot(Ic, gc, "^", color="k", alpha=alpha, label="Cusp")
 
-plot(Ibt_C1, gbt_C1, "o", color=colors[1], alpha=alpha, label="BT, S (\$\\tau_\\delta\$ = 0)")
-plot(Ih_C1[:,1][findall(x->x>0, Sh_C1[:,1])], gin_C1[findall(x->x>0, Sh_C1[:,1])], ":", color=colors[1], alpha=alpha)
-plot(Ih_C1[:,1][findall(x->x<0, Sh_C1[:,1])], gin_C1[findall(x->x<0, Sh_C1[:,1])], "-", color=colors[1], alpha=alpha)
+plot(Ibt_S, gbt_S, "o", color=colors[1], alpha=alpha, label="BT, S (\$\\tau_\\delta\$ = 0)")
+plot(Ih_S[:,1][findall(x->x>0, Sh_S[:,1])], gin_S[findall(x->x>0, Sh_S[:,1])], ":", color=colors[1], alpha=alpha)
+plot(Ih_S[:,1][findall(x->x<0, Sh_S[:,1])], gin_S[findall(x->x<0, Sh_S[:,1])], "-", color=colors[1], alpha=alpha)
 
-plot(Ih_C1[:,2][findall(x->x>0, Sh_C1[:,2])], gin_C1[findall(x->x>0, Sh_C1[:,2])], ":", color=colors[1], alpha=alpha)
-plot(Ih_C1[:,2][findall(x->x<0, Sh_C1[:,2])], gin_C1[findall(x->x<0, Sh_C1[:,2])], "-", color=colors[1], alpha=alpha)
+plot(Ih_S[:,2][findall(x->x>0, Sh_S[:,2])], gin_S[findall(x->x>0, Sh_S[:,2])], ":", color=colors[1], alpha=alpha)
+plot(Ih_S[:,2][findall(x->x<0, Sh_S[:,2])], gin_S[findall(x->x<0, Sh_S[:,2])], "-", color=colors[1], alpha=alpha)
 
-idx_C1 = length( filter(!isnan, Ih_C1[:,2]) )
-plot([Ih_C1[idx_C1,1], Ih_C1[idx_C1,2]], [gin_C1[idx_C1],  gin_C1[idx_C1]], "-", color=colors[1], alpha=alpha)
+idx_S = length( filter(!isnan, Ih_S[:,2]) )
+plot([Ih_S[idx_S, 1], Ih_S[idx_S, 2]], [gin_S[idx_S],  gin_S[idx_S]], "-", color=colors[1], alpha=alpha)
 
 for j in eachindex(τδ)
 	plot(Ibt_DS[j], gbt_DS[j], "o", color=colors[j+1], alpha=0.5, label="BT, \$\\tau_\\delta\$ = $(roundint(τδ[j])) ms")
