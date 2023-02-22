@@ -53,5 +53,5 @@ xlabel("Frequency (Hz)", fontsize=font_axis)
 legend(fontsize=font_legend, frameon=false)
 text(210.0, 0.13, "\$\\ell\$", fontsize=font_axis)
 
-savefig("figures/impedance-mpl.svg", bbox_inches="tight")
+savefig("figures/figure-2.svg", bbox_inches="tight")
 show()

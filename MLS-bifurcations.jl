@@ -16,10 +16,10 @@ function hopf_finder(args)
     ωh .= NaN
   end
   if Ih[1] > -Inf
-    Sh[1] = hopf_stability((a∞(vout[1],args.An,args.Δn), vout[1]), abs(ωout[1]), args)
+    Sh[1] = hopf_stability(vout[1], abs(ωout[1]), args)
   end
   if Ih[2] > -Inf
-    Sh[2] = hopf_stability((a∞(vout[2],args.An,args.Δn), vout[2]), abs(ωout[2]), args)
+    Sh[2] = hopf_stability(vout[2], abs(ωout[2]), args)
   end
 
   return Ih, ωh, Sh
@@ -66,4 +66,4 @@ title("MLS model bifurcation diagram", fontsize=14)
 
 show()
 
-@save "data/MLS_bif_general.bson" gin Isn Ih Sh ωh gbt Ibt gc Ic Cbtc
+@save "data/MLS-bif-general.bson" gin Isn Ih Sh ωh gbt Ibt gc Ic Cbtc
