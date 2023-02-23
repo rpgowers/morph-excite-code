@@ -105,6 +105,33 @@ function find_onset(tspan, x0, args, cutoff, rfind, Ibound; soma_idx=2, ISI_min 
   return Iout, rout
 end
 
+function bsnl_extract(μ, μup, μlow, niter, args_in; maxiters=1e6)
+  μon = 0.0
+  ron = 0.0
+  Ion = 0.0
+  args = deepcopy(args_in)
+  for i=1:niter
+    μmid = 0.5*(μlow+μup)
+    setfield!(args, μ, μmid)
+    local vsn, Isn = sn(args)
+    local Isn_max = maximum(Isn)
+    Ibound = [Isn_max-0.5, Isn_max+0.5]
+    Iout, rout = find_onset(tspan, x0, args, cutoff, rfind, Ibound; soma_idx=2, vth=-8.0, Nmax=25, ϵr = 0.01, ϵisi = 10, ϵsp=1.0, solver=Tsit5(), maxiters=maxiters, saveat=[])
+
+    if Iout < Isn_max # midpoint becomes new upper bound
+      μon = μmid
+      ron = rout
+      Ion = Iout
+      μup = μmid
+      μmid = 0.5*(μlow+μmid)
+    else # midpoint becomes new lower bound
+      μlow = μmid
+      μmid = 0.5*(μup+μmid)
+    end
+  end
+  return μon, Ion, ron
+end
+
 function tp_locations(V, sign; shift=0)
   # sign = +1 for a maximum and -1 for a minimum
   dV = diff(V) # finds consecutive differences between voltage time-course
