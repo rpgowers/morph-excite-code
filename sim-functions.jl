@@ -1,8 +1,8 @@
 include("activation.jl")
 
-using Statistics, DiffEqCallbacks, Setfield
+using Statistics, DiffEqCallbacks, Setfield, Parameters
 
-function neuron_sim(du, u, p, t)
+function neuron_sim!(du, u, p, t)
 	du .= Fall_dyn(u,p)
   nothing
 end
@@ -19,7 +19,7 @@ end
 
 function rate_measure(tspan, x0, args, cutoff; soma_idx=2, vth=-5.0, ISImin = 4, ISIfactor=1.1, ϵisi = 10, ϵsp = 1.0, verbose=false, solver=Tsit5(), maxiters=1e6, saveat=[])
   T = tspan[2]
-  probf = ODEProblem(neuron_sim, x0, tspan, args)
+  probf = ODEProblem(neuron_sim!, x0, tspan, args)
   solf = solve(probf, solver, reltol=1e-8, abstol=1e-8, maxiters=maxiters, saveat=saveat, save_idxs=soma_idx)
   vf = solf[1,:]
   t = solf.t
