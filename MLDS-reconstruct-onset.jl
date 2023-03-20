@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, Dates, PyPlot, BSON, JSON
+using Dates, PyPlot, BSON, JSON, OrdinaryDiffEq, StaticArrays
 using BSON: @save, @load
 
 include("sim-functions.jl")
@@ -40,7 +40,7 @@ Lmax = 1000
 L = lsel.*λ
 M = Int.(round.(L.*Mmax./Lmax))
 
-for i=1:1 # in eachindex(depth_sel)
+for i in eachindex(depth_sel)
 	v0 = -60.0.*ones(M[i]+1)
 	n0 = 0.0
 	x0 = vcat(n0, v0)
@@ -61,28 +61,32 @@ for i=1:1 # in eachindex(depth_sel)
 		vsn, Isn = sn(args)
 		Ibound = [maximum(Isn)-0.5, maximum(Isn)+0.5]
 
-		@time Ion[i], ron[i] = find_onset(tspan, x0, args, cutoff, rfind, Ibound; soma_idx=2, vth=-8.0, Nmax=2, ϵr = 0.1, ϵisi = 10, ϵsp=1.0, solver=Tsit5(), maxiters=1e8, saveat=[])
+		@time Ion[i], ron[i] = find_onset(tspan, x0, args, cutoff, rfind, Ibound; soma_idx=2, vth=-8.0, Nmax=15, ϵr = 0.1, ϵisi = 10, ϵsp=1.0, solver=Tsit5(), maxiters=1e8)
 		println(Ion[i])
 		println(ron[i])
 
 	else
-		_, idx_l = findmin(abs.(lsel[i].-l_bif))
-		_, idx_g = findmin(abs.(gon[i].-gin_bif))
-		println(l_bif[idx_l])
-		println(gin_bif[idx_g])
-		Ibound = [minimum(Ih_bif[idx_l, idx_g, :])-2.0, minimum(Ih_bif[idx_l, idx_g, :])+1.0]
+		vhl, Ihl, _ = hopf(MLFDS_Param(gL=gσ, λ=λ, L=L[i], ρ = (gon[i]-gσ)/(gσ*tanh(lsel[i]))); v0=vbt)
 
-		@time Ion[i], ron[i] = find_onset(tspan, x0, args, cutoff, rfind, Ibound; soma_idx=2, ISI_min = 9, vth=-8.0, Nmax=1, ϵr = 0.1, ϵisi = 10, ϵsp=0.9, solver=Tsit5(), maxiters=1e8, saveat=[])
+		Ibound = [Ihl-3.0, Ihl+1.0]
+
+		@time Ion[i], ron[i] = find_onset(tspan, x0, args, cutoff, rfind, Ibound; soma_idx=2, ISI_min = 9, vth=-8.0, Nmax=10, ϵr = 0.1, ϵisi = 10, ϵsp=0.9, solver=Tsit5(), maxiters=1e8)
 		println(Ion[i])
 		println(ron[i])
 
+
 	end
 
-	probf = ODEProblem(neuron_sim!, x0, tspan, MLMDS_Param(gL=2.0, ρ=ρon[i], τδ = τδ, M=M[i], λ=λ, L=L[i], Iext = Ion[i]))
-	@time solf = solve(probf, Tsit5(), reltol=1e-8, abstol=1e-8, maxiters=1e8, save_idxs=2)
-	vf = solf[1,:]
-	t = solf.t
-	plot(t, vf)
-	show()
+	# probf = ODEProblem(neuron_sim!, x0, tspan, MLMDS_Param(gL=2.0, ρ=ρon[i], τδ = τδ, M=M[i], λ=λ, L=L[i], Iext = Ion[i]))
+	# @time solf = solve(probf, Tsit5(), reltol=1e-8, abstol=1e-8, maxiters=1e8, save_idxs=2)
+	# vf = solf[1,:]
+	# t = solf.t
+	# plot(t, vf)
+	# show()
 
 end
+
+println(ron)
+println(Ion)
+
+@save "data/MLDS-reconstruct-onset.bson" gon ρon ron Ion M λ L τδ date tspan cutoff

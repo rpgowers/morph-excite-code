@@ -17,10 +17,11 @@ function network_sim(du, u, p, t)
   nothing
 end
 
-function rate_measure(tspan, x0, args, cutoff; soma_idx=2, vth=-5.0, ISImin = 4, ISIfactor=1.1, ϵisi = 10, ϵsp = 1.0, verbose=false, solver=Tsit5(), maxiters=1e6, saveat=[])
+function rate_measure(tspan, x0, args, cutoff; soma_idx=2, vth=-5.0, ISImin = 4, ISIfactor=1.1, ϵisi = 10, ϵsp = 1.0, verbose=false, solver=Tsit5(), maxiters=1e6, saveat=[], save_vt = true)
   T = tspan[2]
   probf = ODEProblem(neuron_sim!, x0, tspan, args)
-  solf = solve(probf, solver, reltol=1e-8, abstol=1e-8, maxiters=maxiters, saveat=saveat, save_idxs=soma_idx)
+  solf = solve(probf, solver, reltol=1e-8, abstol=1e-8, maxiters=maxiters, saveat=saveat, save_idxs=soma_idx, dense=false)
+  # solf = solve(probf, reltol=1e-8, abstol=1e-8, maxiters=maxiters, saveat=saveat, save_idxs=soma_idx)
   vf = solf[1,:]
   t = solf.t
   cutidx = findfirst(t .> cutoff)
@@ -62,8 +63,12 @@ function rate_measure(tspan, x0, args, cutoff; soma_idx=2, vth=-5.0, ISImin = 4,
       r = (length(ISI)+1)/(T-cutoff)
     end
   end
+
+  if save_vt == false
+    vf = nothing
+    t = nothing
+  end
   return r, t, vf
-    
 end
 
 function find_onset(tspan, x0, args, cutoff, rfind, Ibound; soma_idx=2, ISI_min = 4, vth=-5.0, Nmax=50, ϵr = 0.01, ϵisi = 10, ϵsp=1.0, solver=Tsit5(), maxiters=1e6, saveat=[])
@@ -71,13 +76,13 @@ function find_onset(tspan, x0, args, cutoff, rfind, Ibound; soma_idx=2, ISI_min 
   Iout = 0.0
 
   args_l = @set args.Iext = Ibound[1]
-  r_l, tl, vl = rate_measure(tspan, x0, args_l, cutoff; soma_idx=soma_idx, vth=vth, ISImin = ISI_min, ISIfactor=1.1, ϵisi = ϵisi, ϵsp = ϵsp, verbose=false, solver=Tsit5(), maxiters=maxiters, saveat=saveat)
+  r_l, _, _ = rate_measure(tspan, x0, args_l, cutoff; soma_idx=soma_idx, vth=vth, ISImin = ISI_min, ISIfactor=1.1, ϵisi = ϵisi, ϵsp = ϵsp, verbose=false, solver=Tsit5(), maxiters=maxiters, saveat=saveat, save_vt = false)
   if r_l > rfind
     println("Invalid lower value")
     return Iout, rout
   end
   args_u = @set args.Iext = Ibound[2]
-  r_u, _, _ = rate_measure(tspan, x0, args_u, cutoff; soma_idx=soma_idx, vth=vth, ISImin = ISI_min, ISIfactor=1.1, ϵisi = ϵisi, ϵsp = ϵsp, verbose=false, solver=Tsit5(), maxiters=maxiters, saveat=saveat)
+  r_u, _, _ = rate_measure(tspan, x0, args_u, cutoff; soma_idx=soma_idx, vth=vth, ISImin = ISI_min, ISIfactor=1.1, ϵisi = ϵisi, ϵsp = ϵsp, verbose=false, solver=Tsit5(), maxiters=maxiters, saveat=saveat, save_vt = false)
   
   if r_u < rfind
     println("Initial invalid upper value")
@@ -87,7 +92,7 @@ function find_onset(tspan, x0, args, cutoff, rfind, Ibound; soma_idx=2, ISI_min 
   Itri = [Ibound[1], 0.5*(Ibound[1]+Ibound[2]), Ibound[2]]
   for i=1:Nmax
     args_m = @set args.Iext = Itri[2]
-    r_m, t, vf = rate_measure(tspan, x0, args_m, cutoff; soma_idx=soma_idx, vth=vth, ISImin = ISI_min, ISIfactor=1.1, ϵisi = ϵisi, ϵsp = ϵsp, verbose=false, solver=Tsit5(), maxiters=maxiters, saveat=saveat)
+    r_m, _, _ = rate_measure(tspan, x0, args_m, cutoff; soma_idx=soma_idx, vth=vth, ISImin = ISI_min, ISIfactor=1.1, ϵisi = ϵisi, ϵsp = ϵsp, verbose=false, solver=Tsit5(), maxiters=maxiters, saveat=saveat, save_vt = false)
     if r_m > rfind # firing rate too high
       rout = r_m
       Iout = Itri[2]
@@ -148,7 +153,7 @@ function tp_locations(V, sign; shift=0)
 end
 
 function LC_extract(tspan, x0, args; soma_idx=2, verbose=true, vth = 0.0, mincross=5, solver=Tsit5(), dtmax=1e-1, maxiters=1e6, saveat = [])
-  probf = ODEProblem(neuron_sim, x0, tspan, args)
+  probf = ODEProblem(neuron_sim!, x0, tspan, args)
   solf = solve(probf, solver, reltol=1e-8, abstol=1e-8, dtmax=dtmax, maxiters=maxiters, saveat=saveat)
   vf = solf[soma_idx,:]
   t = solf.t
@@ -180,7 +185,7 @@ end
 function PRC_sim(T0, xp, args, ΔV, θin; soma_idx=2, Ps = 10, solver=Tsit5(), dtmax=0.1, maxiters=1e6, tp_type = -1, saveat=[])
   tin = T0.*θin
   Δθ = zeros(length(θin))
-  probf = ODEProblem(neuron_sim, xp, Ps*T0, args) # this is the origial trace
+  probf = ODEProblem(neuron_sim!, xp, Ps*T0, args) # this is the origial trace
   solf = solve(probf, solver, reltol=1e-8, abstol=1e-8, maxiters=maxiters, dtmax=dtmax, saveat=saveat)
   to = solf.t
   Vo = solf[soma_idx,:]
