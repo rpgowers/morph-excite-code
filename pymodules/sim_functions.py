@@ -69,3 +69,58 @@ def soma_equiv(name):
     morph = b2.spatialneuron.morphology.Morphology.from_swc_file(f"morphs/{name}_somas.swc", spherical_soma=True)
     soma = b2.SpatialNeuron(morphology=morph, model=eqs, Cm=Cm, Ri=Ri,method='exponential_euler')
     return sum(soma.area)
+
+def LC_setup(v, n, vth, mlc): # this finds the references voltages and active variable for a LC
+    vσ = v[0]
+    dv = b2.diff(vσ)
+    dvπ = b2.array([dv[i]*dv[i+1] for i in range(0,len(dv)-1)])
+    idx = b2.where(dvπ < 0)[0]
+    vref = []
+    nref = []
+    iref = []
+    for i in idx:
+        if vσ[i] > vth:
+            vref.append(v[:,i])
+            nref.append(n[i])
+            iref.append(i)
+            
+    Nlc = b2.diff(iref)
+    Np = b2.mean(Nlc[-mlc:])
+    vstart = b2.mean(vref[-mlc:],axis=0)
+    nstart = b2.mean(nref[-mlc:])
+    return vstart, nstart, Np
+
+
+def PRC_extract(neuron, Iin, in_idx, Δv, P, Np, dt, vstart, nstart, vth):
+    Tp = Np*dt # time in a period/ISI
+    Npint = int(b2.ceil(Np))
+    
+    neuron.v = vstart*b2.mV
+    neuron.n = nstart
+    neuron.I[0] = Iin
+    mon = b2.StateMonitor(neuron, ('v','n'), record=range(0,len(neuron)))
+    t = mon.t
+    b2.run(P*Tp)
+    
+    vbase = mon.v
+    nbase = mon.n
+    
+    Δθ = b2.zeros(len(in_idx))
+    for k in range(0,len(in_idx)):
+        vnew = copy.copy(vbase[:,in_idx[k]])
+        vnew[0]+=Δv
+        neuron.v = vnew
+        neuron.n = nbase[:, in_idx[k]]
+        neuron.I[0] = Iin
+        mon = b2.StateMonitor(neuron, ('v','n'), record=0)
+        t = mon.t
+        b2.run(P*Tp-in_idx[k]*dt)
+        vshift = mon.v[0]/b2.mV
+        
+        idx_new = b2.argmin(vshift[-Npint:])
+        idx_old = b2.argmin(vbase[0,-Npint:])
+        Δθ[k] = (idx_old-idx_new)/Np
+        if abs(Δθ[k]) > 0.5: # this keeps the PRC values in between -0.5 and 0.5
+            Δθ[k] = Δθ[k]-b2.sign(Δθ[k])
+            
+    return Δθ
