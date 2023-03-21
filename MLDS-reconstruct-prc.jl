@@ -8,10 +8,13 @@ date = string(Dates.today())
 @load "data/MLDS-reconstruct-onset.bson" gon ρon ron Ion M λ L τδ date tspan cutoff
 
 δθ = 0.05
+# δθ = 0.1
 
 θin = 0.5*δθ:δθ:1-0.5*δθ
 Δθsim = zeros(length(gon), length(θin))
-ΔV = [5e-3, 5e-3, 1e-4, 1e-2]
+# ΔV = [5e-3, 5e-3, 1e-4, 1e-2]
+ΔV = [5e-3, 5e-3, 1e-4, 2e-2]
+
 
 for i in eachindex(gon)
   println(gon[i])
@@ -26,7 +29,14 @@ for i in eachindex(gon)
   @time Δθsim[i,:] = PRC_sim(T0, xp, args, ΔV[i], θin; Ps = 10, solver=Tsit5(), soma_idx=2, maxiters=1e8, saveat=1e-1)
 end
 
-@save "data/MLDS-reconstruct-prcs.bson" gon ρon τδ ΔV Δθsim θin M λ L date
+# @save "data/MLDS-reconstruct-prcs.bson" gon ρon τδ ΔV Δθsim θin M λ L date
+
+data_out = Dict("gon"=>gon, "θin"=>θin, "Δθ"=>Δθsim, "ΔV"=>ΔV)
+json_string = JSON.json(data_out)
+
+open("data/MLDS-reconstruct-prcs.json","w") do f 
+  write(f, json_string) 
+end
 
 fig = figure(figsize=(9,6))
 fig.subplots_adjust(hspace = 0.3, wspace=0.3)
