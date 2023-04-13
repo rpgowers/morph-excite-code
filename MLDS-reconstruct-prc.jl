@@ -29,8 +29,6 @@ for i in eachindex(gon)
   @time Δθsim[i,:] = PRC_sim(T0, xp, args, ΔV[i], θin; Ps = 10, solver=Tsit5(), soma_idx=2, maxiters=1e8, saveat=1e-1)
 end
 
-# @save "data/MLDS-reconstruct-prcs.bson" gon ρon τδ ΔV Δθsim θin M λ L date
-
 data_out = Dict("gon"=>gon, "θin"=>θin, "Δθ"=>Δθsim, "ΔV"=>ΔV)
 json_string = JSON.json(data_out)
 
@@ -41,7 +39,7 @@ end
 fig = figure(figsize=(9,6))
 fig.subplots_adjust(hspace = 0.3, wspace=0.3)
 
-for i=1:length(gon)
+for i in eachindex(gon)
   fig.add_subplot(230+i)
   plot(θin, Δθsim[i,:], ".")
 end
