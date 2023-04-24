@@ -17,19 +17,6 @@ cutoff = 2000.0
 T = 10000.0
 tspan = (0.0,T+cutoff)
 
-# rfind = 1e-3
-# Ibound = [165.0, 175.0]
-# Iout, rout = find_onset(tspan, x0, args_hopf, cutoff, rfind, Ibound; soma_idx=2, ISI_min = 9, vth=-8.0, Nmax=25, ϵr = 0.01, ϵisi = 10, ϵsp=0.9)
-
-# println(Iout)
-# println(rout)
-
-# r, t, vf = rate_measure(tspan, x0, args_hopf, cutoff; soma_idx=2, vth=-8.0, ISImin = 4, ISIfactor=1.1, ϵisi = 10, ϵsp = 0.9, verbose=false, solver=Tsit5(), maxiters=1e6, saveat=[], save_vt = true)
-
-# println(r)
-# plot(t, vf)
-# show()
-
 ΔVsnic = 6.65e-2
 ΔVhom = 2.665e-4
 ΔVhopf = 5.639e-5
