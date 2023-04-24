@@ -18,18 +18,20 @@ gsel = [4.7, 5.4, 5.9]
 τmax = 20.0
 idx_max = findfirst.(isequal.(τmax), (τδ,))
 idx_snl = findfirst.(isequal.(τsnl), (τδ,))
+_, idx_btc = findmin(abs.(τδ.-τbtc[1]))
 ax = subplot(111)
 
 for i in eachindex(τsel)
   plot([τsel[i] for j=1:length(gsel)], gsel, "o", color=colors[i], alpha=alpha)
 end
 
-plot(τδ[1:idx_max[1]], gbt[1:idx_max[1]], linewidth = linewidth, color="k", label="BT")
+plot(τδ[1:idx_btc-1], gbt[1:idx_btc-1], linewidth = linewidth, color="k", label="BT (upper)")
+plot(τδ[idx_btc:idx_max[1]], gbt[idx_btc:idx_max[1]], "--", linewidth = linewidth, color="k", label="BT (lower)")
 
 plot(τsnl, gsnl, linewidth=linewidth, color="darkgrey", alpha=0.75, label="SNL")
 fill_between(τsnl, gsnl, gbt[idx_snl], color="darkgrey", alpha=0.75)
 fill_between(τδ[1:idx_max[1]], gbaut[1:idx_max[1]], gbt[1:idx_max[1]], color="lightgrey", alpha=0.5)
-axhline(y=gc, color="k", linestyle="--", linewidth=linewidth, alpha=0.5, label="Cusp")
+axhline(y=gc, color="C6", linestyle="-", linewidth=linewidth, alpha=0.75, label="Cusp")
 xlabel("\$\\tau_\\delta\$ (ms)", fontsize=font_axis)
 ylabel("\$G_{\\mathrm{in}}\$ (nS)", fontsize=font_axis)
 xticks(fontsize=font_axis)

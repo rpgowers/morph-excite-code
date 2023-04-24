@@ -20,8 +20,8 @@ Sh_DS = DS_data[:Sh]
 
 ax = subplot(111)
 
-plot(Isn[:,1], gin_DS, color="k", alpha=alpha, label="SN")
-plot(Isn[:,2], gin_DS, color="k", alpha=alpha)
+plot(Isn[:,2], gin_DS, "--", color="k", alpha=alpha, label="SN (lower)")
+plot(Isn[:,1], gin_DS, color="k", alpha=alpha, label="SN (upper)")
 plot(Ic, gc, "^", color="k", alpha=alpha, label="Cusp")
 
 plot(Ibt_S, gbt_S, "o", color=colors[1], alpha=alpha, label="BT, S (\$\\tau_\\delta\$ = 0)")
@@ -58,6 +58,18 @@ title("Bifurcation diagram", fontsize=font_title)
 
 ax.spines["right"].set_visible(false)
 ax.spines["top"].set_visible(false)
+
+# axin = ax.inset_axes([0.72, 0.075, 0.4, 0.4])
+# axin.plot(Isn[:,1], gin_DS, color="k", alpha=alpha, label="SN")
+# axin.plot(Isn[:,2], gin_DS, color="k", alpha=alpha)
+# axin.plot(Ibt_S, gbt_S, "o", color=colors[1], alpha=alpha)
+# for j in eachindex(τδ)
+#   axin.plot(Ibt_DS[j], gbt_DS[j], "o", color=colors[j+1], alpha=0.5)
+# end
+# axin.set_xlim(140.0, 175.0)
+# axin.set_ylim(4.7, 5.6)
+# axin.spines["right"].set_visible(false)
+# axin.spines["top"].set_visible(false)
 
 savefig("figures/figure-3.svg", bbox_inches="tight")
 show()

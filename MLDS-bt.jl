@@ -24,7 +24,7 @@ function hopfstab_finder(vh,ωh,Ih,args)
   return Sh
 end
 
-τδ = 0.0:0.5:40.0
+τδ = 0.0:0.1:40.0
 gσ = 2.0
   
 vbtc, Ibtc, ρbtc, τbtc = btc(MLDS_Param())
