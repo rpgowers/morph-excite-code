@@ -13,19 +13,18 @@ M = 50
 τδ = 10.0
 
 if test == "benchmark"
-  tmax = 10000.0
-  cutoff = 2000.0
+  tmax = 2000.0
+  cutoff = 0.0
   tspan = (0, tmax+cutoff)
 
   x2 = [zeros(M+1) -60.0*ones(M+1)]
 
-  args_test = MLADS_Param(M=M, ρ = 1.0, ϵ = 0.1, Iext=106.0)
+  args_test = MLADS_Param(M=M, ρ = 5.0, ϵ = 1.0, Iext = 357.0)
   probtest = ODEProblem(neuron_sim!, x2, tspan, args_test)
   @time soltest = solve(probtest, Tsit5(), reltol=1e-8, abstol=1e-8, dense=false, save_idxs = [M+2])
 
   # @time r, t, vf = rate_measure(tspan, x2, args_test, cutoff; soma_idx=[1,2], vth=-8.0, ISImin = 4, ISIfactor=1.1, ϵisi = 10, ϵsp = 1.0, verbose=false, solver=Tsit5(), maxiters=1e6, saveat=[], save_vt = true)
   
-  println(sizeof(soltest))
   plot(soltest.t, soltest[1,:])
   show()
 
@@ -73,11 +72,11 @@ elseif test == "onset"
   
   data_bif = BSON.load("data/MLDS-bif-general.bson")
   gbt = data_bif[:gbt]
+  gc = data_bif[:gc]
 
   ϵ = [0.1, 0.2, 0.5, 1.0]
-  Ion_act = zeros(length(ϵ), length(ρon))
-  ron_act = zeros(length(ϵ), length(ρon))
-  println(gbt[3])
+  # Ion_act = zeros(length(ϵ), length(ρon))
+  # ron_act = zeros(length(ϵ), length(ρon))
 
   rfind = 1e-3
   tmax = 10000.0
@@ -91,19 +90,24 @@ elseif test == "onset"
   # println(Ion_pas)
   # println(ron_pas)
 
+  prev_data = BSON.load("data/MLDS-active-onset.bson")
+  ron_act = prev_data[:ron]
+  Ion_act = prev_data[:Ion]
+
   x2 = [zeros(M+1) -60.0*ones(M+1)]
-  for i=1:1 # in eachindex(ϵ) 
+  for i=4:4 # in eachindex(ϵ) 
     
-    for j in eachindex(ρon)
-      Ibound = [Ion_pas[3,j]-10.0, Ion_pas[3,j]+10.0]
+    for j=1:8 # in eachindex(ρon)
+      # Ibound = [Ion_pas[3,j]-10.0, Ion_pas[3,j]+10.0]
+      Ibound = [Ion_pas[3,j]-30.0, Ion_pas[3,j]+10.0]
       args_act = MLADS_Param(M = M, λ = λ, τδ = τδ, ρ = ρon[j], ϵ = ϵ[i])
-      if gon[j] < gbt[3]
+      if gon[j] < gc # gbt[3]
         @time Ion_act[i,j], ron_act[i,j] = find_onset(tspan, x2, args_act, cutoff, rfind, Ibound; soma_idx=[M+2], vth=-8.0, Nmax=25, ϵisi = 10, ϵsp=1.0, solver=Tsit5())   
       else
-        @time Ion_act[i,j], ron_act[i,j] = find_onset(tspan, x2, args_act, cutoff, rfind, Ibound; soma_idx=[M+2], ISI_min = 9, vth=-8.0, Nmax=25, ϵisi = 10, ϵsp=1.0, solver=Tsit5())
+        @time Ion_act[i,j], ron_act[i,j] = find_onset(tspan, x2, args_act, cutoff, rfind, Ibound; soma_idx=[M+2], ISI_min = 9, vth=-8.0, Nmax=25, ϵisi = 10, ϵsp=0.9, solver=Tsit5())
       end
 
-      # args_temp = MLADS_Param(M = M, λ = λ, τδ = τδ, ρ = ρon[j], ϵ = ϵ[i], Iext=Ion_act[i,j])
+      args_temp = MLADS_Param(M = M, λ = λ, τδ = τδ, ρ = ρon[j], ϵ = ϵ[i], Iext=Ion_act[i,j])
 
       # @time rtemp, t, vtemp = rate_measure(tspan, x2, args_temp, cutoff; soma_idx=[M+2], vth=-8.0, ISImin = 9, ϵisi = 10, ϵsp = 1.0, verbose=true, solver=Tsit5(), save_vt = true)
       # println(rtemp)
