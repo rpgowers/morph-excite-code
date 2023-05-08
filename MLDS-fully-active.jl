@@ -95,9 +95,9 @@ elseif test == "onset"
   Ion_act = prev_data[:Ion]
 
   x2 = [zeros(M+1) -60.0*ones(M+1)]
-  for i=4:4 # in eachindex(ϵ) 
+  for i=2:2 # in eachindex(ϵ) 
     
-    for j=1:8 # in eachindex(ρon)
+    for j in eachindex(ρon)
       # Ibound = [Ion_pas[3,j]-10.0, Ion_pas[3,j]+10.0]
       Ibound = [Ion_pas[3,j]-30.0, Ion_pas[3,j]+10.0]
       args_act = MLADS_Param(M = M, λ = λ, τδ = τδ, ρ = ρon[j], ϵ = ϵ[i])

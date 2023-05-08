@@ -17,13 +17,13 @@ x0 = [zeros(M+1) -60.0*ones(M+1)]
 
 
 ΔV = [5e-2 5e-2 5e-2 5e-2 5e-2 5e-3 5e-3 2e-2;
-	    5e-2 2e-2 5e-3 5e-4 5e-7 1e-3 5e-5 2e-1;
+			5e-2 5e-2 5e-2 5e-2 5e-2 5e-3 5e-3 1e-5;
 	    5e-2 5e-2 3e-2 2e-2 1e-2 1e-4 2e-5 1e-1;
 	    5e-2 5e-2 5e-2 5e-2 5e-2 5e-2 5e-2 5e-2]
 
-for i=4:4 # in eachindex(ϵ)
+for i=2:2 # in eachindex(ϵ)
   println("ϵ = $(ϵ[i])")
-	for j in eachindex(gon)
+	for j=1:7 # in eachindex(gon)
 		println("gin = $(gon[j]) nS")
 		args = MLADS_Param(gL=2.0, ρ=ρon[j], τδ = τδ, M=M, λ=λ, L=L, Iext=Ion[i,j], ϵ = ϵ[i])
 
