@@ -68,7 +68,7 @@ idx_max = findfirst.(isequal.(τmax), (τδ_in,))
 ax.spines["right"].set_visible(false)
 ax.spines["top"].set_visible(false)
 
-axin = ax.inset_axes([0.75, 0.16, 0.3, 0.3])
+axin = ax.inset_axes([0.73, 0.16, 0.27, 0.27])
 
 axin.plot(τbtc[1],	gc, "^", color="k", alpha=alpha, label="Cusp")
 axin.plot(τδ_in[1:idx_btc-1], gbt_in[1:idx_btc-1], linewidth = linewidth, color="k", label="BT (upper)")
