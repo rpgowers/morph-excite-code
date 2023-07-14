@@ -110,11 +110,12 @@ function find_onset(tspan, x0, args, cutoff, rfind, Ibound; soma_idx=2, ISI_min 
   return Iout, rout
 end
 
-function bsnl_extract(μ, μup, μlow, niter, args_in; maxiters=1e6)
+function bsnl_extract(μ, μup, μlow, niter, args_in, x0; maxiters = 1e6, rfind = 1e-3, cutoff = 2000.0, tmax = 10000.0)
   μon = 0.0
   ron = 0.0
   Ion = 0.0
   args = deepcopy(args_in)
+  tspan = (0.0, tmax+cutoff)
   for i=1:niter
     μmid = 0.5*(μlow+μup)
     setfield!(args, μ, μmid)

@@ -61,7 +61,7 @@ for j in eachindex(τsel)
   end
   println([glow, gup])
 
-  @time ρon[j], Ion[j], ron[j] = bsnl_extract(:ρ, ρup, ρlow, niter, args; maxiters=1e7)
+  @time ρon[j], Ion[j], ron[j] = bsnl_extract(:ρ, ρup, ρlow, niter, args, x0; maxiters=1e7)
   gon[j] = discrete_gin(MLMDS_Param(M=M, λ=λ, ρ=ρon[j]))
 
   
