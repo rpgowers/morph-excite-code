@@ -3,7 +3,7 @@ using BSON: @save
 
 include("sim-functions.jl")
 
-N = 5 # number of neurons
+N = 2 # number of neurons
 M = 50 # number of compartments per neuron
 
 args_snic = MLMDS_Param(gL = 2.0, τδ = 2.5, Iext= 89.0, ρ = 0.8, M=M, λ=100.0)
@@ -30,17 +30,13 @@ T0_snic = 0.5*(diff(tref)[end-1]+diff(tref)[end])
 prob = ODEProblem(network_sim, xp_snic1, 2*T0_snic, [args_snic])
 @time sol = solve(prob, Tsit5())
 
-xp_snic2 = sol(0.16*T0_snic)
-xp_snic3 = sol(0.32*T0_snic)
-xp_snic4 = sol(0.48*T0_snic)
-xp_snic5 = sol(0.64*T0_snic)
-
-x0_snic = vcat(xp_snic1, xp_snic2, xp_snic3, xp_snic4, xp_snic5)
+xp_snic2 = sol(0.3*T0_snic)
+x0_snic = vcat(xp_snic1, xp_snic2)
 synset = all_to_all(N, ΔVsnic, xp_snic1[2]-1e-1; D=M+2)
 cb = CallbackSet(synset...)
 
 probf = ODEProblem(network_sim, x0_snic, Np*T0_snic, [args_snic for i=1:N])
-@time solf = solve(probf, Tsit5(), reltol=1e-10, abstol=1e-10, callback=cb, save_idxs=[2, M+4, 2*(M+2)+2, 3*(M+2)+2, 4*(M+2)+2])
+@time solf = solve(probf, Tsit5(), reltol=1e-10, abstol=1e-10, callback=cb, save_idxs=[2, M+4])
 t = solf.t
 
 spike_set_snic = [find_spikes(solf[i,:], solf.t, xp_snic1[2]) for i=1:N]
@@ -54,17 +50,14 @@ T0_hom = 0.5*(diff(tref)[end-1]+diff(tref)[end])
 prob = ODEProblem(network_sim, xp_hom1, 2*T0_hom, [args_hom])
 @time sol = solve(prob, Tsit5())
 
-xp_hom2 = sol(0.16*T0_hom)
-xp_hom3 = sol(0.32*T0_hom)
-xp_hom4 = sol(0.48*T0_hom)
-xp_hom5 = sol(0.64*T0_hom)
+xp_hom2 = sol(0.3*T0_hom)
 
-x0_hom = vcat(xp_hom1, xp_hom2, xp_hom3, xp_hom4, xp_hom5)
+x0_hom = vcat(xp_hom1, xp_hom2)
 synset = all_to_all(N, ΔVhom, xp_hom1[2]-1e-1; D=M+2)
 cb = CallbackSet(synset...)
 
 probf = ODEProblem(network_sim, x0_hom, Np*T0_hom, [args_hom for i=1:N])
-@time solf = solve(probf, Tsit5(), reltol=1e-10, abstol=1e-10, callback=cb, save_idxs=[2, M+4, 2*(M+2)+2, 3*(M+2)+2, 4*(M+2)+2])
+@time solf = solve(probf, Tsit5(), reltol=1e-10, abstol=1e-10, callback=cb, save_idxs=[2, M+4])
 t = solf.t
 
 spike_set_hom = [find_spikes(solf[i,:], solf.t, xp_hom1[2]) for i=1:N]
@@ -78,17 +71,14 @@ T0_hopf = 0.5*(diff(tref)[end-1]+diff(tref)[end])
 prob = ODEProblem(network_sim, xp_hopf1, 2*T0_hopf, [args_hopf])
 @time sol = solve(prob, Tsit5())
 
-xp_hopf2 = sol(0.16*T0_hopf)
-xp_hopf3 = sol(0.32*T0_hopf)
-xp_hopf4 = sol(0.48*T0_hopf)
-xp_hopf5 = sol(0.64*T0_hopf)
+xp_hopf2 = sol(0.3*T0_hopf)
 
-x0_hopf = vcat(xp_hopf1, xp_hopf2, xp_hopf3, xp_hopf4, xp_hopf5)
+x0_hopf = vcat(xp_hopf1, xp_hopf2)
 synset = all_to_all(N, ΔVhopf, xp_hopf1[2]-1e-1; D=M+2)
 cb = CallbackSet(synset...)
 
 probf = ODEProblem(network_sim, x0_hopf, Np*T0_hopf, [args_hopf for i=1:N])
-@time solf = solve(probf, Tsit5(), reltol=1e-10, abstol=1e-10, callback=cb, save_idxs=[2, M+4, 2*(M+2)+2, 3*(M+2)+2, 4*(M+2)+2])
+@time solf = solve(probf, Tsit5(), reltol=1e-10, abstol=1e-10, callback=cb, save_idxs=[2, M+4])
 t = solf.t
 
 spike_set_hopf = [find_spikes(solf[i,:], solf.t,xp_hopf1[2]) for i=1:N]
@@ -99,7 +89,7 @@ fig = figure(figsize=(15.0,18.0))
 fig.subplots_adjust(hspace = 0.3, wspace=0.3)
 
 ax1 = fig.add_subplot(231)
-eventplot(spike_set_snic./Tsnic, linelengths=0.8, colors=["C0", "C1", "C2", "C3", "C4"], lineoffsets=1:1:N)
+eventplot(spike_set_snic./Tsnic, linelengths=0.8, colors=["C0", "C1"], lineoffsets=1:1:N)
 xlabel("Time (\$T_n\$)", fontsize=16)
 ylabel("Neuron Number", fontsize=16)
 ax1.minorticks_on()
@@ -107,14 +97,14 @@ ax1.set_xticks(0:2:Np+1)
 ax1.set_xticks(1:2:Np+1, minor=true)
 
 ax1.tick_params(axis="y", which="minor", left=false)
-ax1.set_yticks(1:1:5)
+ax1.set_yticks(1:1:2)
 xticks(fontsize=14)
 yticks(fontsize=14)
 grid(axis="x", which="major")
 grid(axis="x", which="minor", linestyle="--")
 
 ax3 = fig.add_subplot(232)
-eventplot(spike_set_hom./Thom, linelengths=0.8, colors=["C0", "C1", "C2", "C3", "C4"], lineoffsets=1:1:N)
+eventplot(spike_set_hom./Thom, linelengths=0.8, colors=["C0", "C1"], lineoffsets=1:1:N)
 xlabel("Time (\$T_n\$)", fontsize=16)
 ylabel("Neuron Number", fontsize=16)
 ax3.minorticks_on()
@@ -122,14 +112,14 @@ ax3.set_xticks(0:2:Np+1)
 ax3.set_xticks(1:2:Np+1, minor=true)
 
 ax3.tick_params(axis="y", which="minor", left=false)
-ax3.set_yticks(1:1:5)
+ax3.set_yticks(1:1:2)
 xticks(fontsize=14)
 yticks(fontsize=14)
 grid(axis="x", which="major")
 grid(axis="x", which="minor", linestyle="--")
 
 ax5 = fig.add_subplot(233)
-eventplot(spike_set_hopf./Thopf, linelengths=0.8, colors=["C0", "C1", "C2", "C3", "C4"], lineoffsets=1:1:N)
+eventplot(spike_set_hopf./Thopf, linelengths=0.8, colors=["C0", "C1"], lineoffsets=1:1:N)
 xlabel("Time (\$T_n\$)", fontsize=16)
 ylabel("Neuron Number", fontsize=16)
 ax5.minorticks_on()
@@ -137,7 +127,7 @@ ax5.set_xticks(0:2:Np+1)
 ax5.set_xticks(1:2:Np+1, minor=true)
 
 ax5.tick_params(axis="y", which="minor", left=false)
-ax5.set_yticks(1:1:5)
+ax5.set_yticks(1:1:2)
 xticks(fontsize=14)
 yticks(fontsize=14)
 grid(axis="x", which="major")
@@ -146,11 +136,8 @@ grid(axis="x", which="minor", linestyle="--")
 ax2 = fig.add_subplot(234)
 plot(1:1:Lsnic, Δϕsnic[1,:], label="\$ \\theta_1-\\theta_2 \$")
 plot(1:1:Lsnic, Δϕsnic[2,:], label="\$ \\theta_2-\\theta_3 \$")
-plot(1:1:Lsnic, Δϕsnic[3,:], label="\$ \\theta_3-\\theta_4 \$")
-plot(1:1:Lsnic, Δϕsnic[4,:], label="\$ \\theta_4-\\theta_5 \$")
-plot(1:1:Lsnic, Δϕsnic[5,:], label="\$ \\theta_5-\\theta_1 \$")
 
-axhline(y=1/5, linestyle="--", alpha=0.5, color="k")
+axhline(y=1/2, linestyle="--", alpha=0.5, color="k")
 xlabel("Spike number", fontsize=16)
 ylabel("Phase difference", fontsize=16)
 xticks(fontsize=14)
@@ -160,11 +147,8 @@ legend(frameon=false, fontsize=12, ncol=2)
 ax4 = fig.add_subplot(235)
 plot(1:1:Lhom, Δϕhom[1,:], label="\$ \\theta_1-\\theta_2 \$")
 plot(1:1:Lhom, Δϕhom[2,:], label="\$ \\theta_2-\\theta_3 \$")
-plot(1:1:Lhom, Δϕhom[3,:], label="\$ \\theta_3-\\theta_4 \$")
-plot(1:1:Lhom, Δϕhom[4,:], label="\$ \\theta_4-\\theta_5 \$")
-plot(1:1:Lhom, Δϕhom[5,:], label="\$ \\theta_5-\\theta_1 \$")
 
-axhline(y=1/5, linestyle="--", alpha=0.5, color="k")
+axhline(y=1/2, linestyle="--", alpha=0.5, color="k")
 xlabel("Spike number", fontsize=16)
 ylabel("Phase difference", fontsize=16)
 xticks(fontsize=14)
@@ -174,17 +158,14 @@ legend(frameon=false, fontsize=12, ncol=2)
 ax6 = fig.add_subplot(236)
 plot(1:1:Lhopf, Δϕhopf[1,:], label="\$ \\theta_1-\\theta_2 \$")
 plot(1:1:Lhopf, Δϕhopf[2,:], label="\$ \\theta_2-\\theta_3 \$")
-plot(1:1:Lhopf, Δϕhopf[3,:], label="\$ \\theta_3-\\theta_4 \$")
-plot(1:1:Lhopf, Δϕhopf[4,:], label="\$ \\theta_4-\\theta_5 \$")
-plot(1:1:Lhopf, Δϕhopf[5,:], label="\$ \\theta_5-\\theta_1 \$")
 
-axhline(y=1/5, linestyle="--", alpha=0.5, color="k")
+axhline(y=1/2, linestyle="--", alpha=0.5, color="k")
 xlabel("Spike number", fontsize=16)
 ylabel("Phase difference", fontsize=16)
 xticks(fontsize=14)
 yticks(fontsize=14)
 legend(frameon=false, fontsize=12, ncol=2)
 
-@save "data/MLDS-exc-network.bson" spike_set_snic spike_set_hom spike_set_hopf Tsnic Thom Thopf N Np Δϕsnic Δϕhom Δϕhopf Lsnic Lhom Lhopf
+@save "data/MLDS-exc-pair.bson" spike_set_snic spike_set_hom spike_set_hopf Tsnic Thom Thopf N Np Δϕsnic Δϕhom Δϕhopf Lsnic Lhom Lhopf
 
 show()
