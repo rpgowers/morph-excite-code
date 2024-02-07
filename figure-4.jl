@@ -25,7 +25,7 @@ for i in eachindex(τsel)
   plot([τsel[i] for j=1:length(gsel)], gsel, "o", color=colors[i], alpha=alpha)
 end
 
-plot(τδ[1:idx_btc-1], gbt[1:idx_btc-1], linewidth = linewidth, color="k", label="BT (upper)")
+plot(τδ[1:idx_btc-1], gbt[1:idx_btc-1], linewidth = linewidth, color="k", label="BT (higher)")
 plot(τδ[idx_btc:idx_max[1]], gbt[idx_btc:idx_max[1]], "--", linewidth = linewidth, color="k", label="BT (lower)")
 
 plot(τsnl, gsnl, linewidth=linewidth, color="darkgrey", alpha=0.75, label="SNL")

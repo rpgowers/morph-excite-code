@@ -1,0 +1,24 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: morph-excite-code
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Robert
+    family-names: Gowers
+    email: rpgowers@googlemail.com
+    orcid: 'https://orcid.org/0000-0002-9673-9111'
+repository-code: 'https://github.com/rpgowers/morph-excite-code'
+abstract: >-
+  This repository contains code for the paper "Dendritic
+  morphology affects the neuronal excitability type and the
+  network state", Gowers and Schreiber (2024). All data used
+  for the figures as well as the figures themselves can be
+  generated using the scripts contained within the
+  repository. Python and Julia requirements are listed in
+  the repository.
+license: MIT

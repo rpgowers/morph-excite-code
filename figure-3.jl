@@ -25,7 +25,7 @@ ax = subplot2grid(shape=(3, 3), loc=(0, 0), colspan=3, rowspan=2)
 fig.text(0.075, 0.9, "A", fontsize=font_title)
 
 plot(Isn[:, 2], gin_DS, "--", color="k", alpha=alpha, label="SN (lower)")
-plot(Isn[:, 1], gin_DS, color="k", alpha=alpha, label="SN (upper)")
+plot(Isn[:, 1], gin_DS, color="k", alpha=alpha, label="SN (higher)")
 plot(Ic, gc, "^", color="k", alpha=alpha, label="Cusp")
 
 plot(Ibt_S, gbt_S, "o", color=colors[1], alpha=alpha, label="BT, S (\$\\tau_\\delta\$ = 0)")
@@ -108,7 +108,7 @@ Sh_DS = DS_data[:Sh]
 axbt = subplot2grid(shape=(3, 3), loc=(2, 1))
 fig.text(0.375, 0.33, "C", fontsize=font_title)
 
-axbt.set_xlabel("\$I_{\\mathrm{ext}}-I_{\\mathrm{SN (upper)}}\$ (pA)", fontsize=font_legend)
+axbt.set_xlabel("\$I_{\\mathrm{ext}}-I^{\\mathrm{SN, high}}\$ (pA)", fontsize=font_legend)
 axbt.set_ylabel("\$G_{\\mathrm{in}}\$ (nS)", fontsize=font_legend)
 axbt.spines["right"].set_visible(false)
 axbt.spines["top"].set_visible(false)
@@ -129,7 +129,7 @@ axbt.axvline(x=0.0, color="k")
 axbt2 = subplot2grid(shape=(3, 3), loc=(2, 2))
 fig.text(0.65, 0.33, "D", fontsize=font_title)
 
-axbt2.set_xlabel("\$I_{\\mathrm{ext}}-I_{\\mathrm{SN (lower)}}\$ (pA)", fontsize=font_legend)
+axbt2.set_xlabel("\$I_{\\mathrm{ext}}-I^{\\mathrm{SN, low}}\$ (pA)", fontsize=font_legend)
 axbt2.set_ylabel("\$G_{\\mathrm{in}}\$ (nS)", fontsize=font_legend)
 axbt2.spines["right"].set_visible(false)
 axbt2.spines["top"].set_visible(false)
